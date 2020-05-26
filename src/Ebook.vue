@@ -12,6 +12,12 @@
       </div>
     </div>
     <menu-bar :IfTitleAndBarShow="IfTitleAndBarShow"
+      :fontSizeList="fontSizeList"
+      :defaultFontSize="defaultFontSize"
+      @SetFontSize="SetFontSize"
+      :themeList="themeList"
+      :defaultTheme="defaultTheme"
+      @setTheme="setTheme"
       ref="MenuBar"></menu-bar>
     <!-- <MenuBar
     :IfTitleAndBarShow="IfTitleAndBarShow"></MenuBar> -->
@@ -32,21 +38,81 @@ export default{
   },
   data() {
     return {
-      IfTitleAndBarShow: false
+      IfTitleAndBarShow: false,
+      fontSizeList: [
+        { fontSize: 12 },
+        { fontSize: 14 },
+        { fontSize: 16 },
+        { fontSize: 18 },
+        { fontSize: 20 },
+        { fontSize: 22 },
+        { fontSize: 24 }
+      ],
+      defaultFontSize: 16,
+      themeList: [
+        {
+          name: 'default',
+          style: {
+            body: {
+              'color': 'black', 'background': 'white'
+            }
+          }
+        },
+        {
+          name: 'eye',
+          style: {
+            body: { // #ceeaba
+              'color': 'black', 'background': '#ceeaba'
+            }
+          }
+        },
+        {
+          name: 'night',
+          style: {
+            body: {
+              'color': 'white', 'background': 'black'
+            }
+          }
+        },
+        {
+          name: 'gold',
+          style: {
+            body: {
+              'color': 'black', 'background': 'rgb(241, 236, 226)'
+            }
+          }
+        }
+      ],
+      defaultTheme: 3
     }
   },
   methods: {
+    setTheme(index) {
+      this.themes.select(this.themeList[index].name)
+      this.defaultTheme = index
+    },
+    registerTheme() {
+      this.themeList.forEach(theme => {
+        this.themes.register(theme.name, theme.style)
+      })
+    },
     // 电子书的解析和渲染
     showEpub () {
       // 生成book对象
       this.book = new Epub(DOWNLOAD_URL)
-      // 生成redition对象
+      // 生成rendition对象
       this.rendition = this.book.renderTo('read', {
         width: window.innerWidth,
         height: window.innerHeight
       })
       // 通过redition.display方法渲染电子书
       this.rendition.display()
+      this.themes = this.rendition.themes
+
+      this.SetFontSize(this.defaultFontSize)
+
+      this.registerTheme()
+      this.setTheme(this.defaultTheme)
     },
     prevPage() {
       if (this.rendition) {
@@ -61,7 +127,13 @@ export default{
     poMenu() {
       this.IfTitleAndBarShow = !this.IfTitleAndBarShow
       if (!this.IfTitleAndBarShow) {
-        this.$refs.MenuBar.hideSetting();
+        this.$refs.MenuBar.hideSetting()
+      }
+    },
+    SetFontSize(fontSize) {
+      this.defaultFontSize = fontSize
+      if (this.themes) {
+        this.themes.fontSize(fontSize + 'px')
       }
     }
   },
