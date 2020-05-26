@@ -18,6 +18,10 @@
       :themeList="themeList"
       :defaultTheme="defaultTheme"
       @setTheme="setTheme"
+      :bookAvailable="bookAvailable"
+      @onProgressChange="onProgressChange"
+      :nevigation="nevigation"
+      @jumpTo="jumpTo"
       ref="MenuBar"></menu-bar>
     <!-- <MenuBar
     :IfTitleAndBarShow="IfTitleAndBarShow"></MenuBar> -->
@@ -83,10 +87,26 @@ export default{
           }
         }
       ],
-      defaultTheme: 3
+      defaultTheme: 3,
+      bookAvailable: false
     }
   },
   methods: {
+    jumpTo(href) {
+      this.rendition.display(href)
+      this.hideTitleAndMenu()
+    },
+    hideTitleAndMenu() {
+      this.IfTitleAndBarShow = false
+      this.$refs.MenuBar.hideSetting = true
+      this.$refs.MenuBar.hideConter = true
+    },
+    // progress进度条数值 (0-100)
+    onProgressChange(progress) {
+      const percentage = progress / 100
+      const location = percentage > 0 ? this.locations.cfiFromPercentage(percentage) : 0
+      this.rendition.display(location)
+    },
     setTheme(index) {
       this.themes.select(this.themeList[index].name)
       this.defaultTheme = index
@@ -113,6 +133,16 @@ export default{
 
       this.registerTheme()
       this.setTheme(this.defaultTheme)
+      // 获取locations对象
+      // 通过Epub钩子函数实现
+      this.book.ready.then(() => {
+        this.navigation = this.book.navigation
+        return this.book.locations.generate()
+      }).then(result => {
+        this.locations = this.book.locations
+        // this.onProgressChannge(30)
+        this.bookAvailable = true
+      })
     },
     prevPage() {
       if (this.rendition) {
