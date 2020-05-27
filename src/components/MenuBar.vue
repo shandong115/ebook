@@ -1,9 +1,7 @@
 <template>
   <div class="menu-bar">
     <transition name="slide-up">
-      <div class="menu-wrapper"
-      :class="{'hide-box-shadow':IfSettingShow || !IfTitleAndBarShow}"
-      v-show="IfTitleAndBarShow">
+      <div class="menu-wrapper" :class="{'hide-box-shadow': ifShowSetting || !ifTitleAndMenuShow}" v-show="ifTitleAndMenuShow">
         <div class="icon-wrapper">
           <span class="icon-menu icon" @click="showSetting(3)"></span>
         </div>
@@ -19,7 +17,7 @@
       </div>
     </transition>
     <transition name="slide-up">
-      <div class="setting-wrapper" v-show="IfSettingShow">
+      <div class="setting-wrapper" v-show="ifShowSetting">
         <div class="setting-font-size" v-if="showTag === 0">
           <div class="preview" :style="{fontSize:fontSizeList[0].fontSize+'px'}">A</div>
           <div class="select">
@@ -64,17 +62,28 @@
             <span>{{bookAvailable ? progress + '%' : '加载中...'}}</span>
           </div>
         </div>
-        <div class="setting-catalog" v-else-if="showTag === 3"></div>
       </div>
+    </transition>
+    <catalog-view v-show="ifShowCatalog"
+                  :bookAvailable="bookAvailable"
+                  :navigation="navigation"
+                  @jumpTo="jumpTo"></catalog-view>
+    <transition name="fade">
+      <div class="content-mask" v-show="ifShowCatalog"
+            @click="hideCatalog"></div>
     </transition>
   </div>
 
 </template>
 
 <script>
+import CatalogView from '@/components/Catalog'
 export default {
+  components: {
+    CatalogView
+  },
   props: {
-    IfTitleAndBarShow: {
+    ifTitleAndMenuShow: {
       type: Boolean,
       default: false
     },
@@ -89,16 +98,26 @@ export default {
       default: 0
     },
     bookAvailable: Boolean,
-    nevigation: Object
+    navigation: Object
   },
   data() {
     return {
-      IfSettingShow: false,
+      ifShowSetting: false,
       showTag: 0,
-      progress: 0
+      progress: 0,
+      ifShowCatalog: false
     }
   },
   methods: {
+    hideSetting() {
+      this.ifShowSetting = false
+    },
+    hideCatalog() {
+      this.ifShowCatalog = false
+    },
+    jumpTo(href) {
+      this.$emit('jumpTo', href)
+    },
     onProgressChange(progress) {
       this.$emit('onProgressChange', progress)
     },
@@ -107,11 +126,13 @@ export default {
       this.$refs.progress.style.backgroundSize = `${this.progress}% 100%`
     },
     showSetting(tag) {
-      this.IfSettingShow = true
-      this.showTag = tag
-    },
-    hideSetting() {
-      this.IfSettingShow = false
+      if (tag === 3) {
+        this.ifShowSetting = false
+        this.ifShowCatalog = true
+      } else {
+        this.ifShowSetting = true
+        this.showTag = tag
+      }
     },
     SetFontSize(fontSize) {
       this.$emit('SetFontSize', fontSize)
@@ -240,7 +261,7 @@ export default {
             color: #ccc;
             @include center;
             &.selected {
-              color: #333;
+              color: #222;
             }
           }
         }
@@ -286,6 +307,16 @@ export default {
         }
       }
     }
+  .content-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    z-index: 101;
+    background: rgba(51, 51, 51, .8);
+  }
   }
 
 </style>

@@ -1,8 +1,8 @@
 <template>
   <div class="ebook">
-    <!-- <title-bar :IfTitleAndBarShow="IfTitleAndBarShow"></title-bar> -->
+    <!-- <title-bar :ifTitleAndMenuShow="ifTitleAndMenuShow"></title-bar> -->
     <TitleBar
-    :IfTitleAndBarShow="IfTitleAndBarShow"></TitleBar>
+    :ifTitleAndMenuShow="ifTitleAndMenuShow"></TitleBar>
     <div class="read-wrapper">
       <div id="read"></div>
       <div class="mask">
@@ -11,7 +11,7 @@
         <div class="right" @click="nextPage"></div>
       </div>
     </div>
-    <menu-bar :IfTitleAndBarShow="IfTitleAndBarShow"
+    <menu-bar :ifTitleAndMenuShow="ifTitleAndMenuShow"
       :fontSizeList="fontSizeList"
       :defaultFontSize="defaultFontSize"
       @SetFontSize="SetFontSize"
@@ -20,11 +20,11 @@
       @setTheme="setTheme"
       :bookAvailable="bookAvailable"
       @onProgressChange="onProgressChange"
-      :nevigation="nevigation"
+      :navigation="navigation"
       @jumpTo="jumpTo"
       ref="MenuBar"></menu-bar>
     <!-- <MenuBar
-    :IfTitleAndBarShow="IfTitleAndBarShow"></MenuBar> -->
+    :ifTitleAndMenuShow="ifTitleAndMenuShow"></MenuBar> -->
   </div>
 </template>
 
@@ -33,7 +33,8 @@ import Epub from 'epubjs'
 import TitleBar from '@/components/TitleBar'
 import MenuBar from '@/components/MenuBar'
 
-const DOWNLOAD_URL = '/static/speaking-cui.epub'
+/* const DOWNLOAD_URL = '/static/speaking-cui.epub' */
+const DOWNLOAD_URL = '/static/2018_Book_AgileProcessesInSoftwareEngine.epub'
 
 export default{
   components: {
@@ -42,7 +43,7 @@ export default{
   },
   data() {
     return {
-      IfTitleAndBarShow: false,
+      ifTitleAndMenuShow: false,
       fontSizeList: [
         { fontSize: 12 },
         { fontSize: 14 },
@@ -87,19 +88,20 @@ export default{
           }
         }
       ],
-      defaultTheme: 3,
-      bookAvailable: false
+      defaultTheme: 0,
+      bookAvailable: false,
+      navigation: {}
     }
   },
   methods: {
     jumpTo(href) {
       this.rendition.display(href)
-      this.hideTitleAndMenu()
+      this.hideTitleAndMenuBar()
     },
-    hideTitleAndMenu() {
-      this.IfTitleAndBarShow = false
-      this.$refs.MenuBar.hideSetting = true
-      this.$refs.MenuBar.hideConter = true
+    hideTitleAndMenuBar() {
+      this.ifTitleAndMenuShow = false
+      this.$refs.MenuBar.hideSetting()
+      this.$refs.MenuBar.hideCatalog()
     },
     // progress进度条数值 (0-100)
     onProgressChange(progress) {
@@ -155,8 +157,8 @@ export default{
       }
     },
     poMenu() {
-      this.IfTitleAndBarShow = !this.IfTitleAndBarShow
-      if (!this.IfTitleAndBarShow) {
+      this.ifTitleAndMenuShow = !this.ifTitleAndMenuShow
+      if (!this.ifTitleAndMenuShow) {
         this.$refs.MenuBar.hideSetting()
       }
     },
