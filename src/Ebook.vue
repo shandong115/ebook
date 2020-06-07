@@ -33,8 +33,8 @@ import Epub from 'epubjs'
 import TitleBar from '@/components/TitleBar'
 import MenuBar from '@/components/MenuBar'
 
-/* const DOWNLOAD_URL = '/static/speaking-cui.epub' */
-const DOWNLOAD_URL = '/static/2018_Book_AgileProcessesInSoftwareEngine.epub'
+const DOWNLOAD_URL = '/static/speaking-cui.epub'
+// const DOWNLOAD_URL = '/static/2018_Book_AgileProcessesInSoftwareEngine.epub'
 
 export default{
   components: {
@@ -122,6 +122,8 @@ export default{
     showEpub () {
       // 生成book对象
       this.book = new Epub(DOWNLOAD_URL)
+      console.log('a book...')
+      console.log(this.book)
       // 生成rendition对象
       this.rendition = this.book.renderTo('read', {
         width: window.innerWidth,
@@ -144,6 +146,8 @@ export default{
         this.locations = this.book.locations
         // this.onProgressChannge(30)
         this.bookAvailable = true
+        console.log('ready...')
+        console.log(this.book)
       })
     },
     prevPage() {
